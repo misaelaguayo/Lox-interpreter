@@ -1,11 +1,11 @@
-package com.craftinginterpreters.lox;
+package src;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.craftinginterpreteres.lox.TokenType.*;
+import static src.TokenType.*;
 
 class Scanner {
     private static final Map<String, TokenType> keywords;
@@ -13,6 +13,7 @@ class Scanner {
     private final String source;
     private final List<Token> tokens = new ArrayList<>();
     private int start = 0;
+    private int current = 0;
     private int line = 1;
 
     static {
@@ -24,15 +25,15 @@ class Scanner {
         keywords.put("for", FOR);
         keywords.put("fun", FUN);
         keywords.put("if", IF);
-        KEYWORDS.PUT("nil", NIL);
-        KEYWORDS.PUT("or", OR);
-        KEYWORDS.PUT("print", PRINT);
-        KEYWORDS.PUT("return", RETURN);
-        KEYWORDS.PUT("super", SUPER);
-        KEYWORDS.PUT("this", THIS);
-        KEYWORDS.PUT("true", TRUE);
-        KEYWORDS.PUT("var", VAR);
-        KEYWORDS.PUT("while", WHILE);
+        keywords.put("nil", NIL);
+        keywords.put("or", OR);
+        keywords.put("print", PRINT);
+        keywords.put("return", RETURN);
+        keywords.put("super", SUPER);
+        keywords.put("this", THIS);
+        keywords.put("true", TRUE);
+        keywords.put("var", VAR);
+        keywords.put("while", WHILE);
     }
 
     Scanner(String source) {

@@ -1,4 +1,4 @@
-package com.craftinginterpreters.lox;
+package src;
 
 enum TokenType {
     // Single-character tokens.
