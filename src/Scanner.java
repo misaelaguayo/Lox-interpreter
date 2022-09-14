@@ -40,10 +40,16 @@ class Scanner {
         this.source = source;
     }
 
+    private boolean isAtEnd() {
+        return current >= source.length();
+    }
+
     List<Token> scanTokens() {
         while (!isAtEnd()) {
+            start = current;
             scanToken();
         }
+
         tokens.add(new Token(EOF, "", null, line));
         return tokens;
     }
@@ -81,6 +87,7 @@ class Scanner {
             case '*':
                 addToken(STAR);
                 break;
+            // two-char tokens
             case '!':
                 addToken(match('=') ? BANG_EQUAL : BANG);
                 break;
@@ -93,6 +100,7 @@ class Scanner {
             case '>':
                 addToken(match('=') ? GREATER_EQUAL : GREATER);
                 break;
+            // comments
             case '/':
                 if (match('/')) {
                     // A comment goes until the end of the line.
@@ -102,6 +110,7 @@ class Scanner {
                     addToken(SLASH);
                 }
                 break;
+            // whitespace
             case ' ':
             case '\r':
             case '\t':
@@ -112,11 +121,6 @@ class Scanner {
                 break;
             case '"':
                 string();
-                break;
-            case 'o':
-                if (peek() == 'r') {
-                    addToken(OR);
-                }
                 break;
             default:
                 if (isDigit(c)) {
@@ -168,13 +172,18 @@ class Scanner {
         while (peek() != '"' && !isAtEnd()) {
             if (peek() == '\n')
                 line++;
-            if (isAtEnd()) {
-                Lox.error(line, "Unterminated string.");
-                return;
-            }
-            // The closing ".
             advance();
         }
+        if (isAtEnd()) {
+            Lox.error(line, "Unterminated string.");
+            return;
+        }
+        // The closing ".
+        advance();
+
+        // Trim surrounding quotes
+        String value = source.substring(start + 1, current - 1);
+        addToken(STRING, value);
     }
 
     private boolean match(char expected) {
@@ -182,6 +191,7 @@ class Scanner {
             return false;
         if (source.charAt(current) != expected)
             return false;
+
         current++;
         return true;
     }
@@ -198,13 +208,8 @@ class Scanner {
         return source.charAt(current + 1);
     }
 
-    private boolean isAtEnd() {
-        return current >= source.length();
-    }
-
     private char advance() {
-        current++;
-        return source.charAt(current - 1);
+        return source.charAt(current++);
     }
 
     private void addToken(TokenType type) {
