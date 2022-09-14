@@ -8,10 +8,32 @@ import java.util.Map;
 import static com.craftinginterpreteres.lox.TokenType.*;
 
 class Scanner {
+    private static final Map<String, TokenType> keywords;
+
     private final String source;
     private final List<Token> tokens = new ArrayList<>();
     private int start = 0;
     private int line = 1;
+
+    static {
+        keywords = new HashMap<>();
+        keywords.put("and", AND);
+        keywords.put("class", CLASS);
+        keywords.put("else", ELSE);
+        keywords.put("false", FALSE);
+        keywords.put("for", FOR);
+        keywords.put("fun", FUN);
+        keywords.put("if", IF);
+        KEYWORDS.PUT("nil", NIL);
+        KEYWORDS.PUT("or", OR);
+        KEYWORDS.PUT("print", PRINT);
+        KEYWORDS.PUT("return", RETURN);
+        KEYWORDS.PUT("super", SUPER);
+        KEYWORDS.PUT("this", THIS);
+        KEYWORDS.PUT("true", TRUE);
+        KEYWORDS.PUT("var", VAR);
+        KEYWORDS.PUT("while", WHILE);
+    }
 
     Scanner(String source) {
         this.source = source;
@@ -90,9 +112,16 @@ class Scanner {
             case '"':
                 string();
                 break;
+            case 'o':
+                if (peek() == 'r') {
+                    addToken(OR);
+                }
+                break;
             default:
                 if (isDigit(c)) {
                     number();
+                } else if (isAlpha(c)) {
+                    identifier();
                 } else {
                     Lox.error(line, "Unexpected character.");
                 }
@@ -102,6 +131,24 @@ class Scanner {
 
     private boolean isDigit(char c) {
         return c >= '0' && c <= '9';
+    }
+
+    private boolean isAlpha(char c) {
+        return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_';
+    }
+
+    private boolean isAlphaNumeric(char c) {
+        return isAlpha(c) || isDigit(c);
+    }
+
+    private void identifier() {
+        while (isAlphaNumeric(peek()))
+            advance();
+        String text = source.substring(start, current);
+        TokenType type = keywords.get(text);
+        if (type == null)
+            type = IDENTIFIER;
+        addToken(type);
     }
 
     private void number() {
@@ -145,7 +192,8 @@ class Scanner {
     }
 
     private char peekNext() {
-        if (current + 1 >= source.length()) return '\0';
+        if (current + 1 >= source.length())
+            return '\0';
         return source.charAt(current + 1);
     }
 
